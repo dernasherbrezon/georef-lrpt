@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.imageio.ImageIO;
@@ -30,6 +32,7 @@ import com.beust.jcommander.ParameterException;
 import ru.r2cloud.jradio.lrpt.LRPTInputStream;
 import ru.r2cloud.jradio.lrpt.Packet;
 import ru.r2cloud.jradio.lrpt.Vcdu;
+import ru.r2cloud.lrpt.meteor.ChannelType;
 import ru.r2cloud.lrpt.meteor.GcpProcessor;
 import ru.r2cloud.lrpt.meteor.MeteorImage;
 import ru.r2cloud.lrpt.model.CommandLineArgs;
@@ -148,7 +151,38 @@ public class Main {
 
 		File imageFile = new File(outputBasedir, filename + ".png");
 		MeteorImage image = new MeteorImage(packets.iterator());
-		BufferedImage bufImage = image.toBufferedImage();
+
+		Map<Integer, ChannelType> channels = new HashMap<>();
+		// this is actually green, but there is nothing at ~0.4μm where blue supposed to
+		// be, so shift all spectrum a little bit to get artificial colors
+		channels.put(64, new ChannelType(64, "Blue - 0.5~0.7μm"));
+		channels.put(65, new ChannelType(65, "Green - 0.7~1.1μm"));
+		channels.put(66, new ChannelType(66, "Red - 1.6~1.8μm"));
+		channels.put(67, new ChannelType(67, "InfraRed1 - 3.5~4.1μm"));
+		channels.put(68, new ChannelType(68, "InfraRed2 - 10.5~11.5μm"));
+		channels.put(69, new ChannelType(69, "InfraRed3 - 11.5~12.5μm"));
+
+		ChannelType red = null;
+		// only one at a time channel was enabled on meteor. So safe to fallback
+		if (image.getChannelByApid().containsKey(66)) {
+			red = channels.get(66);
+		} else if (image.getChannelByApid().containsKey(67)) {
+			red = channels.get(67);
+		} else if (image.getChannelByApid().containsKey(68)) {
+			red = channels.get(68);
+		} else if (image.getChannelByApid().containsKey(69)) {
+			red = channels.get(69);
+		}
+		ChannelType green = null;
+		if (image.getChannelByApid().containsKey(65)) {
+			green = channels.get(65);
+		}
+		ChannelType blue = null;
+		if (image.getChannelByApid().containsKey(64)) {
+			blue = channels.get(64);
+		}
+
+		BufferedImage bufImage = image.toBufferedImage(red, green, blue);
 		if (bufImage == null) {
 			LOG.info("image is empty: {}", filename);
 			return;
@@ -166,7 +200,7 @@ public class Main {
 
 		MeteorLineDatation lineDatation = new MeteorLineDatation(image);
 
-		gcp.process(bufImage.getHeight(), imageFile, filename + ".vrt", args, tle, lineDatation);
+		gcp.process(bufImage.getHeight(), imageFile, filename + ".vrt", args, tle, lineDatation, red, green, blue);
 
 	}
 

@@ -17,18 +17,12 @@ public class MeteorImage {
 	public static final int METEOR_SPACECRAFT_ID = 0;
 	private static final Logger LOG = LoggerFactory.getLogger(MeteorImage.class);
 
-	private static final int ADMIN_PACKET_APID = 70;
-	private static final int DEFAULT_IR_APID = 68;
-	private static final int DEFAULT_RED_APID = 66;
-	private static final int DEFAULT_GREEN_APID = 65;
-	private static final int DEFAULT_BLUE_APID = 64;
-
 	private final Map<Integer, ImageChannel> channelByApid = new HashMap<>();
 
 	public MeteorImage(Iterator<Packet> input) {
 		while (input.hasNext()) {
 			Packet cur = input.next();
-			if (cur.getApid() == ADMIN_PACKET_APID) {
+			if (cur.getApid() == ChannelType.ADMIN_PACKET_APID) {
 				continue;
 			}
 			try {
@@ -68,21 +62,13 @@ public class MeteorImage {
 		}
 	}
 
-	public BufferedImage toBufferedImage() {
-		return toBufferedImage(DEFAULT_RED_APID, DEFAULT_GREEN_APID, DEFAULT_BLUE_APID);
-	}
-
-	public BufferedImage toBufferedImage(int redApid, int greenApid, int blueApid) {
+	public BufferedImage toBufferedImage(ChannelType redId, ChannelType greenId, ChannelType blueId) {
 		if (channelByApid.isEmpty()) {
 			return null;
 		}
-		ImageChannel red = channelByApid.get(redApid);
-		ImageChannel green = channelByApid.get(greenApid);
-		ImageChannel blue = channelByApid.get(blueApid);
-		
-		if( red == null ) {
-			red = channelByApid.get(DEFAULT_IR_APID);
-		}
+		ImageChannel red = channelByApid.get(redId.getApid());
+		ImageChannel green = channelByApid.get(greenId.getApid());
+		ImageChannel blue = channelByApid.get(blueId.getApid());
 
 		int maxHeight = -1;
 		if (red != null) {
@@ -158,12 +144,4 @@ public class MeteorImage {
 		return channel.getTransparentData()[index] == 0xFF;
 	}
 
-//	private static Packet convert(ImagePacket packet) {
-//		Packet result = new Packet();
-//		result.setApid(packet.getApid());
-//		result.setMillisecondOfDay(packet.getDate().getTime());
-//		result.setSequenceCount(packet.getSequenceCount());
-//		result.setUserData(packet.getRaw());
-//		return result;
-//	}
 }

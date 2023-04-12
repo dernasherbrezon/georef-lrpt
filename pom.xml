@@ -1,9 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.r2cloud</groupId>
-	<artifactId>lrpt-georeferencing</artifactId>
+	<artifactId>georef-lrpt</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
@@ -22,7 +20,7 @@
 			<artifactId>orekit</artifactId>
 			<version>10.0</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
 			<version>1.78</version>
@@ -73,7 +71,7 @@
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -85,7 +83,7 @@
 					<release>11</release>
 				</configuration>
 			</plugin>
-<plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<archive>
@@ -96,7 +94,7 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<finalName>lrpt-georef</finalName>
+					<finalName>georef-lrpt</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
@@ -108,8 +106,33 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>	
+			</plugin>
 		</plugins>
 	</build>
 
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>DErNasherBrezson</id>
+			<name>DErNasherBrezson</name>
+			<email>dernasherbrezon@gmail.com</email>
+		</developer>
+	</developers>
+	
+	<scm>
+		<url>https://github.com/dernasherbrezon/georef-lrpt</url>
+		<connection>scm:git:git@github.com:dernasherbrezon/georef-lrpt.git</connection>
+		<developerConnection>scm:git:git@github.com:dernasherbrezon/georef-lrpt.git</developerConnection>
+		<tag>georef-lrpt-1.0</tag>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/dernasherbrezon/georef-lrpt/issues</url>
+	</issueManagement>
 </project>

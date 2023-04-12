@@ -89,7 +89,7 @@ public class GcpProcessor {
 		}
 	}
 
-	public File process(int imageHeight, File imageFile, String outputFilename,  CommandLineArgs params, TLE tle, LineDatation lineDatation) {
+	public File process(int imageHeight, File imageFile, String outputFilename, CommandLineArgs params, TLE tle, LineDatation lineDatation, ChannelType red, ChannelType green, ChannelType blue) {
 		// 1. configure TLE
 		TLEPropagator tlePropagator = TLEPropagator.selectExtrapolator(tle, earthCenterAttitudeLaw, 2700);
 		tlePropagator.setSlaveMode();
@@ -180,11 +180,10 @@ public class GcpProcessor {
 				}
 			}
 			w.append("</GCPList>");
-			w.append("" + "<VRTRasterBand dataType=\"Byte\" band=\"1\">\n" + "<Description>APID64</Description><SimpleSource>\n" + "		<SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename>\n" + "		<SourceBand>1</SourceBand>" + "	</SimpleSource>\n"
-					+ "</VRTRasterBand>" + "<VRTRasterBand dataType=\"Byte\" band=\"2\">\n" + "<Description>APID65</Description><SimpleSource>\n" + "		<SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename>\n" + "		<SourceBand>2</SourceBand>" + "	</SimpleSource>\n"
-					+ "</VRTRasterBand>" + "<VRTRasterBand dataType=\"Byte\" band=\"3\">\n" + "<Description>APID66</Description><SimpleSource>\n" + "		<SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename>\n" + "		<SourceBand>3</SourceBand>" + "	</SimpleSource>\n"
-					+ "</VRTRasterBand>" + "<VRTRasterBand dataType=\"Byte\" band=\"4\">\n" + "<Description>Alpha</Description><ColorInterp>Alpha</ColorInterp>	<SimpleSource>\n" + "		<SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename>\n"
-					+ "		<SourceBand>4</SourceBand>" + "	</SimpleSource>\n" + "</VRTRasterBand>" + "");
+			w.append("<VRTRasterBand dataType=\"Byte\" band=\"1\"><Description>" + red.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>1</SourceBand></SimpleSource></VRTRasterBand>\n");
+			w.append("<VRTRasterBand dataType=\"Byte\" band=\"2\"><Description>" + green.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>2</SourceBand></SimpleSource></VRTRasterBand>\n");
+			w.append("<VRTRasterBand dataType=\"Byte\" band=\"3\"><Description>" + blue.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>3</SourceBand></SimpleSource></VRTRasterBand>\n");
+			w.append("<VRTRasterBand dataType=\"Byte\" band=\"4\"><Description>Alpha</Description><ColorInterp>Alpha</ColorInterp><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>4</SourceBand></SimpleSource></VRTRasterBand>\n");
 			w.append("</VRTDataset>");
 		} catch (IOException e) {
 			LOG.error("unable to write .vrt file: " + result.getAbsolutePath(), e);
