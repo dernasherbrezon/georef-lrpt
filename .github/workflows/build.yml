@@ -29,7 +29,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn clean verify sonar:sonar -Pcoverage -Dsonar.scm.disabled=true org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dernasherbrezon_georef-lrpt -Dsonar.organization=dernasherbrezon-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.language=java
+      run: mvn clean verify sonar:sonar -Pcoverage -Dsonar.scm.disabled=true -Dsonar.projectKey=dernasherbrezon_georef-lrpt -Dsonar.organization=dernasherbrezon-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.language=java
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
