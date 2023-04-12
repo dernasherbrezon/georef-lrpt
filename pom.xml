@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.r2cloud</groupId>
 	<artifactId>georef-lrpt</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<properties>
 		<logversion>1.6.1</logversion>
@@ -175,7 +175,7 @@
 		<url>https://github.com/dernasherbrezon/georef-lrpt</url>
 		<connection>scm:git:git@github.com:dernasherbrezon/georef-lrpt.git</connection>
 		<developerConnection>scm:git:git@github.com:dernasherbrezon/georef-lrpt.git</developerConnection>
-		<tag>georef-lrpt-1.0</tag>
+		<tag>georef-lrpt-1.0.0</tag>
 	</scm>
 
 	<issueManagement>
