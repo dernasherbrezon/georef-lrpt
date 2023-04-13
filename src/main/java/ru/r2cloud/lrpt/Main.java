@@ -173,14 +173,8 @@ public class Main {
 		} else if (image.getChannelByApid().containsKey(69)) {
 			red = channels.get(69);
 		}
-		ChannelType green = null;
-		if (image.getChannelByApid().containsKey(65)) {
-			green = channels.get(65);
-		}
-		ChannelType blue = null;
-		if (image.getChannelByApid().containsKey(64)) {
-			blue = channels.get(64);
-		}
+		ChannelType green = channels.get(ChannelType.DEFAULT_GREEN_APID);
+		ChannelType blue = channels.get(ChannelType.DEFAULT_BLUE_APID);
 
 		BufferedImage bufImage = image.toBufferedImage(red, green, blue);
 		if (bufImage == null) {
