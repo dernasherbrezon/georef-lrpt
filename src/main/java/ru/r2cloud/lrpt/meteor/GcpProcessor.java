@@ -108,19 +108,19 @@ public class GcpProcessor {
 		// 3. setup pv and angular coordinates
 		List<TimeStampedPVCoordinates> satellitePVList = new ArrayList<>();
 		List<TimeStampedAngularCoordinates> satelliteQList = new ArrayList<>();
-		AbsoluteDate absDate = lineDatation.getDate(0);
-		LOG.info("generating .vrt for: {}", absDate);
-		// FIXME find number of seconds in the pass
-		for (int i = 0; i < 60 * 10; i++) {
-			AbsoluteDate ephemerisDate = absDate.shiftedBy(i);
-			TimeStampedPVCoordinates pvCoordinates = tlePropagator.getPVCoordinates(ephemerisDate, eme2000);
+		AbsoluteDate startDate = lineDatation.getDate(0);
+		AbsoluteDate endDate = lineDatation.getDate(imageHeight - 4).shiftedBy(1); // middle of the last row + one more second
+		LOG.info("generating .vrt from {} to {}", startDate, endDate);
+		for (float i = 0; startDate.compareTo(endDate) < 0; i++) {
+			startDate = startDate.shiftedBy(i);
+			TimeStampedPVCoordinates pvCoordinates = tlePropagator.getPVCoordinates(startDate, eme2000);
 			satellitePVList.add(pvCoordinates);
-			Attitude att = earthCenterAttitudeLaw.getAttitude(tlePropagator, ephemerisDate, eme2000);
+			Attitude att = earthCenterAttitudeLaw.getAttitude(tlePropagator, startDate, eme2000);
 			satelliteQList.add(att.getOrientation());
 		}
 
 		// 4. configure Rugged
-		Rugged rugged = new RuggedBuilder().setAlgorithm(AlgorithmId.IGNORE_DEM_USE_ELLIPSOID).setEllipsoid(EllipsoidId.WGS84, BodyRotatingFrameId.ITRF).setTimeSpan(absDate, absDate.shiftedBy(60 * 10), 0.01, 8 / lineSensor.getRate(0))
+		Rugged rugged = new RuggedBuilder().setAlgorithm(AlgorithmId.IGNORE_DEM_USE_ELLIPSOID).setEllipsoid(EllipsoidId.WGS84, BodyRotatingFrameId.ITRF).setTimeSpan(startDate, startDate.shiftedBy(60 * 10), 0.01, 8 / lineSensor.getRate(0))
 				.setTrajectory(InertialFrameId.EME2000, satellitePVList, 4, CartesianDerivativesFilter.USE_PV, satelliteQList, 4, AngularDerivativesFilter.USE_R).addLineSensor(lineSensor).build();
 
 		// 5. setup GCP sparce indexes
