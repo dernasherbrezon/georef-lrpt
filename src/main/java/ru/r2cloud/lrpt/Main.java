@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -94,8 +95,8 @@ public class Main {
 			}
 		}
 		Collections.sort(vcduPaths);
-		List<Packet> packets = new ArrayList<>();
 		String filename = null;
+		List<Vcdu> vcdus = new ArrayList<>();
 		for (Path cur : vcduPaths) {
 			if (filename == null) {
 				filename = getFilenameWithoutExtension(cur);
@@ -103,13 +104,28 @@ public class Main {
 			try (LRPTInputStream is = new LRPTInputStream(new BufferedInputStream(new FileInputStream(cur.toFile())))) {
 				LOG.info("reading: {}", cur);
 				while (is.hasNext()) {
-					Vcdu curVcdu = is.next();
-					packets.addAll(curVcdu.getPackets());
+					vcdus.add(is.next());
 				}
-
 			} catch (IOException e) {
 				LOG.error("unable to read: {}", cur, e);
 			}
+		}
+
+		Collections.sort(vcdus, new Comparator<Vcdu>() {
+			@Override
+			public int compare(Vcdu o1, Vcdu o2) {
+				return Integer.compare(o1.getCounter(), o2.getCounter());
+			}
+		});
+
+		List<Packet> packets = new ArrayList<>();
+		int previous = 0;
+		for (Vcdu curVcdu : vcdus) {
+			if (curVcdu.getCounter() == previous) {
+				continue;
+			}
+			previous = curVcdu.getCounter();
+			packets.addAll(curVcdu.getPackets());
 		}
 
 		if (packets.isEmpty()) {
