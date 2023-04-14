@@ -109,7 +109,7 @@ public class GcpProcessor {
 		List<TimeStampedPVCoordinates> satellitePVList = new ArrayList<>();
 		List<TimeStampedAngularCoordinates> satelliteQList = new ArrayList<>();
 		AbsoluteDate startDate = lineDatation.getDate(0);
-		AbsoluteDate endDate = lineDatation.getDate(imageHeight - 4).shiftedBy(1); // middle of the last row + one more second
+		AbsoluteDate endDate = lineDatation.getDate(imageHeight - 4.0).shiftedBy(1); // middle of the last row + one more second
 		LOG.info("generating .vrt from {} to {}", startDate, endDate);
 		for (float i = 0; startDate.compareTo(endDate) < 0; i++) {
 			startDate = startDate.shiftedBy(i);
@@ -163,23 +163,31 @@ public class GcpProcessor {
 		File result = new File(imageFile.getParentFile(), outputFilename);
 		long counter = 0;
 		Vector3D position = lineSensor.getPosition();
+		BoundsTracker boundsTracker = new BoundsTracker();
 		try (BufferedWriter w = new BufferedWriter(new FileWriter(result))) {
 			w.append("<VRTDataset rasterXSize=\"1568\" rasterYSize=\"" + imageHeight + "\">");
-			w.append("<GCPList Projection=\"EPSG:4326\">");
+			w.append("<GCPList Projection=\"EPSG:4326\">\n");
 			for (Integer height : heightIndexes) {
 				AbsoluteDate firstLineDate = lineSensor.getDate(height);
 				if (firstLineDate == null) {
 					// raw data can contain gaps with no timestamps
 					continue;
 				}
+				boundsTracker.resetLine();
 				for (Integer widthIndex : widthIndexes) {
 					Vector3D los = lineSensor.getLOS(firstLineDate, widthIndex);
 					GeodeticPoint gp = rugged.directLocation(firstLineDate, position, los);
-					w.append("<GCP Id=\"" + counter + "\" Pixel=\"" + (WIDTH - widthIndex) + ".5\" Line=\"" + (height) + ".5\" X=\"" + FastMath.toDegrees(gp.getLongitude()) + "\" Y=\"" + FastMath.toDegrees(gp.getLatitude()) + "\" Z=\"0.0\" />\n");
+					double x = FastMath.toDegrees(gp.getLongitude());
+					double y = FastMath.toDegrees(gp.getLatitude());
+					boundsTracker.update(x, y);
+					// See https://www.orekit.org/site-rugged-3.0/tutorials/direct-location.html for
+					// elevation data
+					// TODO import DEM files one day from gdal and load as tiles into Rugged
+					w.append("<GCP Id=\"" + counter + "\" Pixel=\"" + (WIDTH - widthIndex) + ".5\" Line=\"" + (height) + ".5\" X=\"" + x + "\" Y=\"" + y + "\" Z=\"0.0\" />\n");
 					counter++;
 				}
 			}
-			w.append("</GCPList>");
+			w.append("</GCPList>\n");
 			w.append("<VRTRasterBand dataType=\"Byte\" band=\"1\"><Description>" + red.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>1</SourceBand></SimpleSource></VRTRasterBand>\n");
 			w.append("<VRTRasterBand dataType=\"Byte\" band=\"2\"><Description>" + green.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>2</SourceBand></SimpleSource></VRTRasterBand>\n");
 			w.append("<VRTRasterBand dataType=\"Byte\" band=\"3\"><Description>" + blue.getDescription() + "</Description><SimpleSource><SourceFilename relativeToVRT=\"1\">" + imageFile.getName() + "</SourceFilename><SourceBand>3</SourceBand></SimpleSource></VRTRasterBand>\n");
@@ -189,7 +197,11 @@ public class GcpProcessor {
 			LOG.error("unable to write .vrt file: " + result.getAbsolutePath(), e);
 			return null;
 		}
-		return result;
+		File dest = new File(imageFile.getParentFile(), outputFilename + "_" + boundsTracker.formatRough() + ".vrt");
+		if (!result.renameTo(dest)) {
+			return null;
+		}
+		return dest;
 	}
 
 }

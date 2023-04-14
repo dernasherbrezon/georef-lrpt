@@ -210,7 +210,7 @@ public class Main {
 
 		MeteorLineDatation lineDatation = new MeteorLineDatation(image);
 
-		gcp.process(bufImage.getHeight(), imageFile, filename + ".vrt", args, tle, lineDatation, red, green, blue);
+		gcp.process(bufImage.getHeight(), imageFile, filename, args, tle, lineDatation, red, green, blue);
 
 	}
 
