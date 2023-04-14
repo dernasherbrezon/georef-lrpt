@@ -10,7 +10,8 @@ georef-lrpt application can georeference images acquired via [LRPT](https://en.w
 
 * Supported satellites: METEOR-M 2 (NORAD ID: 40069), METEOR-M 2-2 (NORAD ID: 44387)
 * 3 channels + 1 alpha channel
-* Alpha channel is generated for those regions where was no packets received for all 3 other channels.
+* Alpha channel is generated for those regions where was no packets received for all 3 other channels
+* Detect extents for manual split on anti-meridian
 
 # How to use
 
@@ -49,8 +50,24 @@ The output will contain .png file and .vrt file.
 Use [gdal](https://gdal.org) to convert .vrt into GeoTIFF:
 
 ```
-gdalwarp -tps -overwrite -t_srs epsg:3857 -of GTIFF 2022_12_20_20_25_30.vrt 2022_12_20_20_25_30.tiff
+gdalwarp -tps -overwrite -of GTIFF 2022_12_20_20_25_30_134_-14_162_-8.vrt 2022_12_20_20_25_30.tiff
 ```
 
-The command above will create GeoTIFF file in the WGS 84 / Pseudo-Mercator projection ( epsg:3857 ). This projection is used by all online maps like [Google maps](http://maps.google.com/) and [OpenStreetMap](https://www.openstreetmap.org).
+The command above will create GeoTIFF file in the EPSG:4326 projection ( longlat WGS84 ). This projection can be further converted into epsg:3857 to use from online maps like [Google maps](http://maps.google.com/) and [OpenStreetMap](https://www.openstreetmap.org).
 
+## Anti-meridian
+
+GDAL and QGIS cannot detect if image is wrapped around projection. Thus special handling is needed. 
+
+  1. Firstly extract geodetic coordinates from the .vrt filename. georef-lrpt will generate .vrt filenames according to the format: ```<first .vcdu filename>_<minX>_<minY>_<maxX>_<maxY>.vrt```. Please note that each coordinate can be negative. For example: ```2022_12_20_20_25_30_134_-14_162_-8.vrt``` Has longitude from 134 to 162 (west to east) and latitude from -14 to -8 (south to north). 
+
+  2. Secondly generate 2 separate tiff files from the same .vrt using gdalwrap. For the filename ```2022_12_20_18_44_50_142_-55_-173_-11.vrt``` two commands need to be executed:
+    * ```gdalwarp -tps -overwrite -te 142 -55 180 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-left.tiff
+    * ```gdalwarp -tps -overwrite -te -180 -55 -173 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-right.tiff
+    
+Then left and right images can be added to the map. On the screenshot below the right image is drawn without alpha channel, just to highlight wrapped tiff
+
+![Nice anti-meridian support](/docs/anti-meridian.png?raw=true)
+
+ 
+ 
