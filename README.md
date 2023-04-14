@@ -59,11 +59,9 @@ The command above will create GeoTIFF file in the EPSG:4326 projection ( longlat
 
 GDAL and QGIS cannot detect if image is wrapped around projection. Thus special handling is needed. 
 
-  1. Firstly extract geodetic coordinates from the .vrt filename. georef-lrpt will generate .vrt filenames according to the format: ```<first .vcdu filename>_<minX>_<minY>_<maxX>_<maxY>.vrt```. Please note that each coordinate can be negative. For example: ```2022_12_20_20_25_30_134_-14_162_-8.vrt``` Has longitude from 134 to 162 (west to east) and latitude from -14 to -8 (south to north). 
+  1. Extract geodetic coordinates from the .vrt filename. georef-lrpt will generate .vrt filenames according to the format: ```<first .vcdu filename>_<minX>_<minY>_<maxX>_<maxY>.vrt```. Please note that each coordinate can be negative. For example: ```2022_12_20_20_25_30_134_-14_162_-8.vrt``` Has longitude from 134 to 162 (west to east) and latitude from -14 to -8 (south to north). 
 
-  2. Secondly generate 2 separate tiff files from the same .vrt using gdalwrap. For the filename ```2022_12_20_18_44_50_142_-55_-173_-11.vrt``` two commands need to be executed:
-    * ```gdalwarp -tps -overwrite -te 142 -55 180 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-left.tiff
-    * ```gdalwarp -tps -overwrite -te -180 -55 -173 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-right.tiff
+  2. Generate 2 separate tiff files from the same .vrt using gdalwrap. For the filename ```2022_12_20_18_44_50_142_-55_-173_-11.vrt``` two commands need to be executed  ```gdalwarp -tps -overwrite -te 142 -55 180 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-left.tiff``` and ```gdalwarp -tps -overwrite -te -180 -55 -173 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-right.tiff```
     
 Then left and right images can be added to the map. On the screenshot below the right image is drawn without alpha channel, just to highlight wrapped tiff
 
