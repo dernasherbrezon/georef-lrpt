@@ -135,12 +135,8 @@ public class Main {
 
 		Date startTime = null;
 		if (args.getStartTime() == null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-			try {
-				startTime = sdf.parse(filename);
-			} catch (Exception e) {
-				LOG.error("unable to guess the datetime from: {}, specify explcitly via command line", e);
+			startTime = guessFromTheFilename(filename);
+			if (startTime == null) {
 				return;
 			}
 		} else {
@@ -212,6 +208,21 @@ public class Main {
 
 		gcp.process(bufImage.getHeight(), imageFile, filename, args, tle, lineDatation, red, green, blue);
 
+	}
+
+	private static Date guessFromTheFilename(String filename) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		try {
+			return sdf.parse(filename);
+		} catch (Exception e) {
+		}
+		try {
+			return new Date(Long.valueOf(filename));
+		} catch (NumberFormatException e2) {
+		}
+		LOG.error("unable to guess datetime from the filename. Specify explicitly from the command line");
+		return null;
 	}
 
 	private static Date convertToMidnightMoscow(Date gmtVcdu, long millisSinceMidnight) {

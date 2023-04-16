@@ -63,7 +63,7 @@ GDAL and QGIS cannot detect if image is wrapped around projection. Thus special 
 
   2. Generate 2 separate tiff files from the same .vrt using gdalwrap. For the filename ```2022_12_20_18_44_50_142_-55_-173_-11.vrt``` two commands need to be executed  ```gdalwarp -tps -overwrite -te 142 -55 180 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-left.tiff``` and ```gdalwarp -tps -overwrite -te -180 -55 -173 -11 -of GTiff 2022_12_20_18_44_50_142_-55_-173_-11.vrt 2022_12_20_18_44_50-right.tiff```
     
-Then left and right images can be added to the map. On the screenshot below the right image is drawn without alpha channel, just to highlight wrapped tiff
+Then left and right images can be added to the map. On the screenshot below the right image is drawn without alpha channel, just to highlight wrapped output.
 
 ![Nice anti-meridian support](/docs/anti-meridian.png?raw=true)
 
